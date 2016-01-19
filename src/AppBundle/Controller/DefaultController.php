@@ -33,14 +33,15 @@ class DefaultController extends Controller
      */
     public function lastBonjourMadameAction(Request $request)
     {
-        /*if ($request->get('token') !== 'wReTCvIBqSJoD3mKzXWWWHsx') {
+        if ($request->get('token') !== 'wReTCvIBqSJoD3mKzXWWWHsx') {
             throw new \InvalidArgumentException('Bad token');
-        }*/
+        }
         /** @var BonjourMadameService $bonjourMadameService */
         $bonjourMadameService = $this->get('bonjour_madame_sevice');
         $image = $bonjourMadameService->getLastBonjourMadameImage();
 
         return new JsonResponse([
+            'response_type' => 'in_channel',
             'text' => 'Vicieux !!!',
             'attachments' => [
                 [
