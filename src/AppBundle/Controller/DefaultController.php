@@ -43,6 +43,8 @@ class DefaultController extends Controller
         return new JsonResponse([
             'text' => 'Vicieux !!!',
             'attachments' => [
+                'fallback' => 'Tiens mais chut ;)',
+                'color' => '#E71840',
                 'image_url' => $image,
             ],
         ]);
