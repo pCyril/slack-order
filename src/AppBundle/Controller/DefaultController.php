@@ -44,6 +44,7 @@ class DefaultController extends Controller
             'text' => 'Vicieux !!!',
             'attachments' => [
                 'fallback' => 'Tiens mais chut ;)',
+                'text' => 'Tiens mais chut ;)',
                 'color' => '#E71840',
                 'image_url' => $image,
             ],
