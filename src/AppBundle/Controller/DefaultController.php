@@ -33,9 +33,9 @@ class DefaultController extends Controller
      */
     public function lastBonjourMadameAction(Request $request)
     {
-        if ($request->get('token') !== 'wReTCvIBqSJoD3mKzXWWWHsx') {
+        /*if ($request->get('token') !== 'wReTCvIBqSJoD3mKzXWWWHsx') {
             throw new \InvalidArgumentException('Bad token');
-        }
+        }*/
         /** @var BonjourMadameService $bonjourMadameService */
         $bonjourMadameService = $this->get('bonjour_madame_sevice');
         $image = $bonjourMadameService->getLastBonjourMadameImage();
@@ -43,10 +43,12 @@ class DefaultController extends Controller
         return new JsonResponse([
             'text' => 'Vicieux !!!',
             'attachments' => [
-                'fallback' => 'Tiens mais chut ;)',
-                'text' => 'Tiens mais chut ;)',
-                'color' => '#E71840',
-                'image_url' => $image,
+                [
+                    'fallback' => 'Tiens mais chut ;)',
+                    'text' => 'Tiens mais chut ;)',
+                    'color' => '#E71840',
+                    'image_url' => $image,
+                ],
             ],
         ]);
     }
