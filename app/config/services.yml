@@ -6,3 +6,7 @@ parameters:
 services:
     bonjour_madame_sevice:
         class: AppBundle\Service\BonjourMadameService
+    bagel_command_sevice:
+        class: AppBundle\Service\BagelCommandService
+        arguments:
+            - @doctrine.orm.entity_manager
