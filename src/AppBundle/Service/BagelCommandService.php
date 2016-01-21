@@ -62,17 +62,9 @@ class BagelCommandService {
         $this->em->persist($bagel);
         $this->em->flush();
 
-        if ($this->isFirstToday()) {
-            return [
-                'response_type' => 'in_channel',
-                'text' => sprintf('%s a décidé de manger un bagel à midi si tu souhaites le rejoindre utilise la commande `/bagel`', $name),
-                'mrkdwn' => true,
-            ];
-        }
-
         return [
-            'text' => sprintf('Tu as commandé un bagel pour ce midi.
-            Tu devrais manger à midi un `%s`, bon appétit!', $order),
+            'response_type' => 'in_channel',
+            'text' => sprintf('%s a décidé de manger un bagel à midi si tu souhaites le rejoindre utilise la commande `/bagel`', $name),
             'mrkdwn' => true,
         ];
     }
@@ -187,18 +179,5 @@ class BagelCommandService {
         $endDate->setTime(11, 10, 0);
 
         return ($currentDate >= $startDate && $currentDate <= $endDate);
-    }
-
-    private function isFirstToday()
-    {
-        /** @var BagelRepository $bagelRepository */
-        $bagelRepository = $this->em->getRepository('AppBundle:Bagel');
-
-        $date = new \DateTime();
-        $date->setTime(0, 0, 0);
-        /** @var Bagel[] $bagels */
-        $bagels = $bagelRepository->findBy(['date' => $date]);
-
-        return (count($bagels) === 1);
     }
 }
