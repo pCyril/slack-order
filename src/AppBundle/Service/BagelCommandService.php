@@ -63,7 +63,8 @@ class BagelCommandService {
         $this->em->flush();
 
         return [
-            'text' => sprintf('Tu as commandé un bagel pour ce midi.\n Tu devrais manger à midi un `%s`, bon appétit!', $order),
+            'text' => sprintf('Tu as commandé un bagel pour ce midi.
+             Tu devrais manger à midi un `%s`, bon appétit!', $order),
             'mrkdwn' => true,
         ];
     }
@@ -148,10 +149,10 @@ class BagelCommandService {
     public function help()
     {
         return [
-            'text' => 'Tu as faim mais tu ne sais pas comment faire ?\n
-                Si tu souhaites passer ou modifier une commande.\n `/bagel commande Grenoblois/Pavot/Tartare`\n
-                Si tu n\'as plus faim.\n `/bagel annuler`\n
-                Tu souhaites savoir avec qui tu vas manger ?.\n `/bagel liste`',
+            'text' => '*Tu as faim mais tu ne sais pas comment faire ?*
+                - Si tu souhaites passer ou modifier une commande. `/bagel commande Grenoblois/Pavot/Tartare`
+                - Si tu n\'as plus faim. `/bagel annuler`
+                - Tu souhaites savoir avec qui tu vas manger ?. `/bagel liste`',
 
             'mrkdwn' => true,
             'attachments' => [
