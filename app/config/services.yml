@@ -4,9 +4,9 @@ parameters:
 #    parameter_name: value
 
 services:
-    bonjour_madame_sevice:
+    bonjour_madame_service:
         class: AppBundle\Service\BonjourMadameService
-    bagel_command_sevice:
-        class: AppBundle\Service\BagelCommandService
+    order_command_service:
+        class: AppBundle\Service\OrderCommandService
         arguments:
             - "@service_container"

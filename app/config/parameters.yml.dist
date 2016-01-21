@@ -19,39 +19,13 @@ parameters:
     secret:            ThisTokenIsNotSoSecretChangeIt
 
     bonjour_madame_token: bonjourMadameSlackToken
-    bagel_command_token: bagelCommandSlackToken
+    order_command_token: orderCommandSlackToken
+    order_restaurant_email: email.order@domain.tld
 
-    bagel_email: email.bagel@domain.tld
-
-    bagel:
-      breads:
-        - "Fromage Piment"
-        - "Césame"
-        - "Nature"
-        - "Pavot"
-        - "Toutes saveurs"
-      sauces:
-        - "Mayonnaise"
-        - "Moutarde au miel"
-        - "Burger"
-        - "Ketchup"
-        - "Cheddar"
-        - "Coleslaw"
-        - "Barbecue"
-        - "Guacamole"
-        - "Tartare"
-        - "Poivre vert"
-        - "Américaine"
-      bagels:
-        - "Mexicain"
-        - "Chicken"
-        - "Chorizo"
-        - "So British"
-        - "Raclette"
-        - "Grenoblois"
-        - "Dolce Vita"
-        - "Home"
-        - "Salmon"
-        - "Ducky"
-        - "Tuna"
-        
+    order_command_name: /bagel
+    order_restaurant_name: "Bagel Time"
+    order_example: "Grenoblois/Pavot/Tartare"
+    order_restaurant_phone_number: "06 ** ** ** **"
+    order_start_hour: "08:00"
+    order_end_hour: "11:10"
+    order_send_by_mail_activate: 0

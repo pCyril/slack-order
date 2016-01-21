@@ -21,7 +21,7 @@ class BonjourMadameController extends Controller
             throw new \InvalidArgumentException('Bad token');
         }
         /** @var BonjourMadameService $bonjourMadameService */
-        $bonjourMadameService = $this->get('bonjour_madame_sevice');
+        $bonjourMadameService = $this->get('bonjour_madame_service');
         $image = $bonjourMadameService->getLastBonjourMadameImage();
 
         return new JsonResponse([
