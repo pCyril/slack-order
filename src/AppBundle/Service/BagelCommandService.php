@@ -6,6 +6,7 @@ namespace AppBundle\Service;
 use AppBundle\Entity\Bagel;
 use AppBundle\Repository\BagelRepository;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class BagelCommandService {
 
@@ -17,12 +18,35 @@ class BagelCommandService {
 
     const BAGEL_COMMAND_HELP = 'help';
 
+    const BAGEL_COMMAND_RANDOM = 'aléatoire';
+
     /** @var EntityManager $em */
     private $em;
 
-    public function __construct($entityManager)
+    /** @var ContainerInterface $container */
+    private $container;
+
+    public function __construct($entityManager, ContainerInterface $container)
     {
         $this->em = $entityManager;
+        $this->container = $container;
+    }
+
+    public function randomOrder($name)
+    {
+        $bagelParameters = $this->container->getParameter('bagel');
+
+        if (!isset($bagelParameters['breads']) || !isset($bagelParameters['sauces']) || !isset($bagelParameters['bagels'])) {
+            throw new \DomainException('Parameters for bagels incompletes or incorrects.');
+        }
+
+        $bagel = $bagelParameters['bagels'][array_rand($bagelParameters['bagels'])];
+        $bread = $bagelParameters['breads'][array_rand($bagelParameters['breads'])];
+        $sauce = $bagelParameters['sauces'][array_rand($bagelParameters['sauces'])];
+
+        $order = sprintf('%s/%s/%s', $bagel, $bread, $sauce);
+
+        return $this->addOrder($name, $order);
     }
 
     /**
@@ -162,8 +186,8 @@ class BagelCommandService {
             'text' => '*Tu as faim mais tu ne sais pas comment faire ?*
                 - Si tu souhaites passer ou modifier une commande. `/bagel commande Grenoblois/Pavot/Tartare`
                 - Si tu n\'as plus faim. `/bagel annuler`
-                - Tu souhaites savoir avec qui tu vas manger ?. `/bagel liste`',
-
+                - Tu souhaites savoir avec qui tu vas manger ? `/bagel liste`
+                - Tu ne sais pas quoi choisir ? `/bagel aléatoire`',
             'mrkdwn' => true,
             'attachments' => [
                 [

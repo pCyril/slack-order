@@ -10,3 +10,4 @@ services:
         class: AppBundle\Service\BagelCommandService
         arguments:
             - "@doctrine.orm.entity_manager"
+            - "@service_container"
