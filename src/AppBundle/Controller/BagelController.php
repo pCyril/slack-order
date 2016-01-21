@@ -46,6 +46,10 @@ class BagelController extends Controller
             case BagelCommandService::BAGEL_COMMAND_RANDOM:
                 $data = $bagelCommandService->randomOrder($request->get('user_name'));
                 break;
+            case BagelCommandService::BAGEL_COMMAND_SEND:
+                unset($textExploded[0]);
+                $data = $bagelCommandService->send($request->get('user_name'), $textExploded);
+                break;
         }
 
         return new JsonResponse($data);

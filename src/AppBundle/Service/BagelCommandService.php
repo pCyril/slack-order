@@ -6,6 +6,8 @@ namespace AppBundle\Service;
 use AppBundle\Entity\Bagel;
 use AppBundle\Repository\BagelRepository;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\NoResultException;
+use Symfony\Bundle\TwigBundle\TwigEngine;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class BagelCommandService {
@@ -20,16 +22,29 @@ class BagelCommandService {
 
     const BAGEL_COMMAND_RANDOM = 'aléatoire';
 
+    const BAGEL_COMMAND_SEND = 'envoyer';
+
     /** @var EntityManager $em */
     private $em;
 
     /** @var ContainerInterface $container */
     private $container;
 
-    public function __construct($entityManager, ContainerInterface $container)
+    /** @var \Swift_Mailer */
+    private $mailer;
+
+    /** @var  TwigEngine */
+    private $twig;
+
+    /**
+     * @param ContainerInterface $container
+     */
+    public function __construct(ContainerInterface $container)
     {
-        $this->em = $entityManager;
         $this->container = $container;
+        $this->em = $container->get('doctrine')->getManager();
+        $this->mailer = $container->get('mailer');
+        $this->twig = $container->get('twig');
     }
 
     public function randomOrder($name)
@@ -169,6 +184,60 @@ class BagelCommandService {
         ];
     }
 
+    public function send($name, $params)
+    {
+        /** @var BagelRepository $bagelRepository */
+        $bagelRepository = $this->em->getRepository('AppBundle:Bagel');
+
+        try {
+            $bagel = $bagelRepository->getFirstOrderToday();
+        }catch (NoResultException $e) {
+            return [
+                'text' => '*Il n\'y a pas eu de commande aujourd\'hui.*',
+            ];
+        }
+
+        if ($bagel->getName() !== $name) {
+            return [
+                'text' => sprintf('*Ce n\'est pas toi qui a initié la commande, demande à %s si il peut envoyer la commande.*', $bagel->getName()),
+            ];
+        }
+
+        $hour = $params[0];
+        if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $hour)) {
+            return [
+                'text' => '*Le format de l\'heure n\'est pas correct*',
+            ];
+        }
+
+        unset($params[0]);
+        $phoneNumber = implode('', $params);
+
+        if(!preg_match('/^[0-9]{10}$/', $hour)) {
+            return [
+                'text' => '*Le format du numéro de téléphone n\'est pas correct*',
+            ];
+        }
+
+        if ($this->sendEmail($hour, $phoneNumber) === 0) {
+            return [
+                'text' => '*L\'email n\'a pas été envoyé merci de passer la commande par téléphone au 04 78 43 52 19.*',
+            ];
+        }
+
+        return [
+            'text' => '*La commande a été envoyée*',
+            'attachments' => [
+                [
+                    'fallback' => 'Fail ?',
+                    'text' => sprintf('%s, tu peux quand même confirmer par téléphone au 04 78 43 52 19 ?', ucfirst($bagel->getName())),
+                    'color' => 'danger',
+                ],
+            ],
+        ];
+
+    }
+
     /**
      * @return array
      */
@@ -179,7 +248,8 @@ class BagelCommandService {
                 - Si tu souhaites passer ou modifier une commande. `/bagel commande Grenoblois/Pavot/Tartare`
                 - Si tu n\'as plus faim. `/bagel annuler`
                 - Tu souhaites savoir avec qui tu vas manger ? `/bagel liste`
-                - Tu ne sais pas quoi choisir ? `/bagel aléatoire`',
+                - Tu ne sais pas quoi choisir ? `/bagel aléatoire`
+                - Tu veux envoyer la commande à Bagel Time ? `/bagel envoyer hh:mm 06********`',
             'mrkdwn' => true,
             'attachments' => [
                 [
@@ -203,5 +273,28 @@ class BagelCommandService {
         $endDate->setTime(11, 10, 0);
 
         return ($currentDate >= $startDate && $currentDate <= $endDate);
+    }
+
+    /**
+     * @param $hour
+     * @param $phoneNumber
+     * @return int
+     */
+    private function sendEmail($hour, $phoneNumber)
+    {
+        $message = \Swift_Message::newInstance()
+            ->setSubject('Commande de bagels')
+            ->setFrom('send@example.com')
+            ->setTo($this->container->getParameter('bagel_email'))
+            ->setBody(
+                $this->twig->renderView(
+                // app/Resources/views/Emails/registration.html.twig
+                    'Emails/registration.html.twig',
+                    array('name' => '')
+                ),
+                'text/html'
+            );
+
+        return $this->mailer->send($message);
     }
 }

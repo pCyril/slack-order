@@ -21,6 +21,8 @@ parameters:
     bonjour_madame_token: bonjourMadameSlackToken
     bagel_command_token: bagelCommandSlackToken
 
+    bagel_email: email.bagel@domain.tld
+
     bagel:
       breads:
         - "Fromage Piment"
