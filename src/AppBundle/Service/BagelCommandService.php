@@ -72,7 +72,7 @@ class BagelCommandService {
 
         return [
             'text' => sprintf('Tu as commandé un bagel pour ce midi.
-             Tu devrais manger à midi un `%s`, bon appétit!', $order),
+            Tu devrais manger à midi un `%s`, bon appétit!', $order),
             'mrkdwn' => true,
         ];
     }
@@ -139,6 +139,7 @@ class BagelCommandService {
 
         foreach ($bagels as $bagel) {
             $attachment = [
+                'fallback' => sprintf('%s a commandé : %s', $bagel->getName(), $bagel->getOrder()),
                 'text' => sprintf('%s a commandé : %s', $bagel->getName(), $bagel->getOrder()),
             ];
 
@@ -146,8 +147,9 @@ class BagelCommandService {
         }
 
         return [
-            'text' => 'Il est trop tard pour annuler ta commande.',
-            'attachments' => [$attachments]
+            'text' => '*Voici les personnes avec qui tu vas manger :*',
+            'mrkdwn' => true,
+            'attachments' => $attachments
         ];
     }
 
