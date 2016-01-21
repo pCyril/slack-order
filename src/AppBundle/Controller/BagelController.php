@@ -15,12 +15,12 @@ class BagelController extends Controller
      */
     public function bagelAction(Request $request)
     {
-        if ($request->get('token') !== $this->getParameter('bagel_command_token')) {
+            if ($request->get('token') !== $this->getParameter('bagel_command_token')) {
             throw new \InvalidArgumentException('Bad token');
         }
 
         /** @var BagelCommandService $bagelCommandService */
-        $bagelCommandService = $this->get('bonjour_madame_sevice');
+        $bagelCommandService = $this->get('bagel_command_sevice');
 
         $text = $request->get('text');
 
