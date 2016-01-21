@@ -197,6 +197,6 @@ class BagelCommandService {
         /** @var Bagel[] $bagels */
         $bagels = $bagelRepository->findBy(['date' => $date]);
 
-        return (count($bagels) === 0);
+        return (count($bagels) === 1);
     }
 }
