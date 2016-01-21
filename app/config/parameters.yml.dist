@@ -20,3 +20,36 @@ parameters:
 
     bonjour_madame_token: bonjourMadameSlackToken
     bagel_command_token: bagelCommandSlackToken
+
+    bagel:
+      breads:
+        - "Fromage Piment"
+        - "Césame"
+        - "Nature"
+        - "Pavot"
+        - "Toutes saveurs"
+      sauces:
+        - "Mayonnaise"
+        - "Moutarde au miel"
+        - "Burger"
+        - "Ketchup"
+        - "Cheddar"
+        - "Coleslaw"
+        - "Barbecue"
+        - "Guacamole"
+        - "Tartare"
+        - "Poivre vert"
+        - "Américaine"
+      bagels:
+        - "Mexicain"
+        - "Chicken"
+        - "Chorizo"
+        - "So British"
+        - "Raclette"
+        - "Grenoblois"
+        - "Dolce Vita"
+        - "Home"
+        - "Salmon"
+        - "Ducky"
+        - "Tuna"
+        
