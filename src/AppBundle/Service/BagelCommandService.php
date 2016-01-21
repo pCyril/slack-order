@@ -35,42 +35,7 @@ class BagelCommandService {
         /** @var BagelRepository $bagelRepository */
         $bagelRepository = $this->em->getRepository('AppBundle:Bagel');
 
-        $currentDate = new \DateTime();
-        $startDate = new \DateTime();
-        $startDate->setTime(8, 0, 0);
-        $endDate = new \DateTime();
-        $endDate->setTime(11, 10, 0);
-        if ($currentDate >= $startDate && $currentDate <= $endDate) {
-            $currentDate->setTime(0, 0, 0);
-            $bagel = $bagelRepository->findOneBy(['name' => $name, 'date' => $currentDate]);
-
-            $bagel = $bagel ? $bagel : new Bagel();
-
-            $bagel
-                ->setName($name)
-                ->setDate($currentDate)
-                ->setOrder($order);
-
-            $this->em->persist($bagel);
-            $this->em->flush();
-
-            return [
-                'response_type' => 'in_channel',
-                'text' => sprintf('%s a commandé un bagel pour ce midi.', $name),
-                'attachments' => [
-                    [
-                        'fallback' => 'Fail ?',
-                        'text' => sprintf('Il devrait manger à midi un `%s`, bon appétit!', $order),
-                        'mrkdwn' => true,
-                    ],
-                    [
-                        'fallback' => 'Fail ?',
-                        'text' => 'Tu souhaites toi aussi manger un bagel ? Utilise la commande `/bagel`',
-                        'mrkdwn' => true,
-                    ],
-                ],
-            ];
-        } else {
+        if (!($this->inTime())) {
 
             return [
                 'text' => 'Désolé les commandes ne sont accéptés que de 8:00 à 11:10',
@@ -82,6 +47,31 @@ class BagelCommandService {
                 ],
             ];
         }
+
+        $date = new \DateTime();
+        $date->setTime(0, 0, 0);
+        $bagel = $bagelRepository->findOneBy(['name' => $name, 'date' => $date]);
+
+        $bagel = $bagel ? $bagel : new Bagel();
+
+        $bagel
+            ->setName($name)
+            ->setDate($date)
+            ->setOrder($order);
+
+        $this->em->persist($bagel);
+        $this->em->flush();
+
+        return [
+            'text' => sprintf('Tu as commandé un bagel pour ce midi.', $name),
+            'attachments' => [
+                [
+                    'fallback' => 'Fail ?',
+                    'text' => sprintf('Il devrait manger à midi un `%s`, bon appétit!', $order),
+                    'mrkdwn' => true,
+                ],
+            ],
+        ];
     }
 
     /**
@@ -93,27 +83,7 @@ class BagelCommandService {
         /** @var BagelRepository $bagelRepository */
         $bagelRepository = $this->em->getRepository('AppBundle:Bagel');
 
-        $currentDate = new \DateTime();
-        $startDate = new \DateTime();
-        $startDate->setTime(8, 0, 0);
-        $endDate = new \DateTime();
-        $endDate->setTime(11, 10, 0);
-        if ($currentDate >= $startDate && $currentDate <= $endDate) {
-            $currentDate->setTime(0, 0, 0);
-            $bagel = $bagelRepository->findOneBy(['name' => $name, 'date' => $currentDate]);
-            if (null === $bagel) {
-                return [
-                    'text' => 'Tu n\avais rien commandé, mais dans le doute tu as bien fait.',
-                ];
-            }
-
-            $this->em->remove($bagel);
-            $this->em->flush();
-
-            return [
-                'text' => 'Ta commande a bien été annulée.',
-            ];
-        } else {
+        if (!($this->inTime())) {
             return [
                 'text' => 'Il est trop tard pour annuler ta commande.',
                 'attachments' => [
@@ -124,6 +94,22 @@ class BagelCommandService {
                 ],
             ];
         }
+
+        $date = new \DateTime();
+        $date->setTime(0, 0, 0);
+        $bagel = $bagelRepository->findOneBy(['name' => $name, 'date' => $date]);
+        if (null === $bagel) {
+            return [
+                'text' => 'Tu n\'avais rien commandé, mais dans le doute tu as bien fait.',
+            ];
+        }
+
+        $this->em->remove($bagel);
+        $this->em->flush();
+
+        return [
+            'text' => 'Ta commande a bien été annulée.',
+        ];
     }
 
     /**
@@ -134,11 +120,31 @@ class BagelCommandService {
         /** @var BagelRepository $bagelRepository */
         $bagelRepository = $this->em->getRepository('AppBundle:Bagel');
 
-        $currentDate = new \DateTime();
-        $currentDate->setTime(0, 0, 0);
-        $bagels = $bagelRepository->findBy(['date' => $currentDate]);
+        $date = new \DateTime();
+        $date->setTime(0, 0, 0);
+        /** @var Bagel[] $bagels */
+        $bagels = $bagelRepository->findBy(['date' => $date]);
 
-        return [];
+        if (count($bagels) === 0) {
+            return [
+                'text' => 'Personne n\'a commandé de bagel aujourd\'hui',
+            ];
+        }
+
+        $attachments = [];
+
+        foreach ($bagels as $bagel) {
+            $attachment = [
+                'text' => sprintf('%s a commandé : %s', $bagel->getName(), $bagel->getOrder()),
+            ];
+
+            $attachments[] = $attachment;
+        }
+
+        return [
+            'text' => 'Il est trop tard pour annuler ta commande.',
+            'attachments' => [$attachments]
+        ];
     }
 
     /**
@@ -171,5 +177,19 @@ class BagelCommandService {
                 ],
             ],
         ];
+    }
+
+    /**
+     * @return bool
+     */
+    private function inTime()
+    {
+        $currentDate = new \DateTime();
+        $startDate = new \DateTime();
+        $startDate->setTime(8, 0, 0);
+        $endDate = new \DateTime();
+        $endDate->setTime(11, 10, 0);
+
+        return ($currentDate >= $startDate && $currentDate <= $endDate);
     }
 }

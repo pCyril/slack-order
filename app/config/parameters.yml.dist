@@ -19,3 +19,4 @@ parameters:
     secret:            ThisTokenIsNotSoSecretChangeIt
 
     bonjour_madame_token: bonjourMadameSlackToken
+    bagel_command_token: bagelCommandSlackToken

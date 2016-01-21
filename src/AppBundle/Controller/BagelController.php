@@ -22,7 +22,9 @@ class BagelController extends Controller
         /** @var BagelCommandService $bagelCommandService */
         $bagelCommandService = $this->get('bonjour_madame_sevice');
 
-        $text = !empty($request->get('text')) ? $request->get('text') : BagelCommandService::BAGEL_COMMAND_HELP;
+        $text = $request->get('text');
+
+        $text = !empty($text) ? $text : BagelCommandService::BAGEL_COMMAND_HELP;
 
         $textExploded = explode(' ', $text);
 
