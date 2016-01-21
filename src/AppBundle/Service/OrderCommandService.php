@@ -260,7 +260,6 @@ class OrderCommandService {
                 - Si tu souhaites passer ou modifier une commande. `'.$this->orderCommandName.' commande '.$this->orderExample.'`
                 - Si tu n\'as plus faim. `'.$this->orderCommandName.' annuler`
                 - Tu souhaites savoir avec qui tu vas manger ? `'.$this->orderCommandName.' liste`
-                - Tu ne sais pas quoi choisir ? `'.$this->orderCommandName.' aléatoire`
                 - Tu veux envoyer la commande à '.$this->orderRestaurantName.' ? `'.$this->orderCommandName.' envoyer hh:mm 06********`',
             'mrkdwn' => true,
             'attachments' => [
