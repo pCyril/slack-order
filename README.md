@@ -9,7 +9,7 @@ Tout est dans la configuration
     - `order_command_name` Il s'agit de la commande que vous avez configuré dans Slack. 
         - Exemple: "/bagel" "/pizza"
         
-    - `order_example` Il s'agit de la commande que vous avez configuré dans Slack. 
+    - `order_example` L'exemple de commande que l'on peut passer pour aider les utilisateurs 
         - Exemple: "Savoyarde" "4 fromages"
         
     - `order_restaurant_name` Le nom du restaurant où vous souhaité passer commande.
