@@ -29,7 +29,7 @@ class Bagel
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=255, nullable=false)
+     * @ORM\Column(name="order_bagel", type="string", length=255, nullable=false)
      */
     private $order;
 

@@ -63,14 +63,8 @@ class BagelCommandService {
         $this->em->flush();
 
         return [
-            'text' => sprintf('Tu as commandé un bagel pour ce midi.', $name),
-            'attachments' => [
-                [
-                    'fallback' => 'Fail ?',
-                    'text' => sprintf('Il devrait manger à midi un `%s`, bon appétit!', $order),
-                    'mrkdwn' => true,
-                ],
-            ],
+            'text' => sprintf('Tu as commandé un bagel pour ce midi.\n Tu devrais manger à midi un `%s`, bon appétit!', $order),
+            'mrkdwn' => true,
         ];
     }
 
@@ -90,6 +84,7 @@ class BagelCommandService {
                     [
                         'fallback' => 'Fail ?',
                         'text' => 'Tu peux quand même essayer d\'appeler Bagel Time au 04 78 43 52 19',
+                        'color' => 'danger',
                     ],
                 ],
             ];
@@ -153,23 +148,13 @@ class BagelCommandService {
     public function help()
     {
         return [
-            'text' => 'Tu as faim mais tu ne sais pas comment faire ?',
+            'text' => 'Tu as faim mais tu ne sais pas comment faire ?\n
+                Si tu souhaites passer ou modifier une commande.\n `/bagel commande Grenoblois/Pavot/Tartare`\n
+                Si tu n\'as plus faim.\n `/bagel annuler`\n
+                Tu souhaites savoir avec qui tu vas manger ?.\n `/bagel liste`',
+
+            'mrkdwn' => true,
             'attachments' => [
-                [
-                    'fallback' => 'Fail ?',
-                    'text' => 'Si tu souhaites passer ou modifier une commande.\n `/bagel commande Grenoblois/Pavot/Tartare`',
-                    'mrkdwn' => true,
-                ],
-                [
-                    'fallback' => 'Fail ?',
-                    'text' => 'Si tu n\'as plus faim.\n `/bagel annuler`',
-                    'mrkdwn' => true,
-                ],
-                [
-                    'fallback' => 'Fail ?',
-                    'text' => 'Tu souhaites savoir avec qui tu vas manger ?.\n `/bagel liste`',
-                    'mrkdwn' => true,
-                ],
                 [
                     'fallback' => 'Fail ?',
                     'text' => 'Important: Tu as jusqu\'à 11h10 pour passer ta commande.',
