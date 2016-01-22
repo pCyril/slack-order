@@ -194,6 +194,11 @@ class OrderCommandService {
         ];
     }
 
+    /**
+     * @param string $name
+     * @param array $params
+     * @return array
+     */
     public function send($name, $params)
     {
         /** @var OrderRepository $orderRepository */
@@ -219,14 +224,14 @@ class OrderCommandService {
             ];
         }
 
-        $hour = $params[0];
+        $hour = $params[1];
         if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $hour)) {
             return [
                 'text' => sprintf('*Le format de l\'heure n\'est pas correct (%s)*', $hour),
             ];
         }
 
-        unset($params[0]);
+        unset($params[1]);
         $phoneNumber = implode('', $params);
 
         if(!preg_match('/^[0-9]{10}$/', $phoneNumber)) {
