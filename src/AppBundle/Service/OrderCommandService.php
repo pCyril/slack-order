@@ -51,6 +51,9 @@ class OrderCommandService {
     /** @var  String */
     private $orderExample;
 
+    /** @var  String */
+    private $orderSenderEmail;
+
     /**
      * @param ContainerInterface $container
      */
@@ -68,6 +71,7 @@ class OrderCommandService {
         $this->orderEndHour = $container->getParameter('order_end_hour');
         $this->orderSendByMailActivated = $container->getParameter('order_send_by_mail_activate');
         $this->orderExample = $container->getParameter('order_example');
+        $this->orderSenderEmail = $container->getParameter('order_sender_email');
     }
 
     /**
@@ -231,7 +235,7 @@ class OrderCommandService {
             ];
         }
 
-        if ($this->sendEmail($hour, $phoneNumber) === 0) {
+        if ($this->sendEmail($hour, $phoneNumber, $name) === 0) {
             return [
                 'text' => sprintf('*L\'email n\'a pas été envoyé merci de passer la commande par téléphone au %s.*', $this->orderRestaurantPhoneNumber),
             ];
@@ -295,21 +299,34 @@ class OrderCommandService {
     }
 
     /**
-     * @param $hour
-     * @param $phoneNumber
+     * @param String $hour
+     * @param String $phoneNumber
+     * @param String $name
      * @return int
      */
-    private function sendEmail($hour, $phoneNumber)
+    private function sendEmail($hour, $phoneNumber, $name)
     {
+        /** @var OrderRepository $orderRepository */
+        $orderRepository = $this->em->getRepository('AppBundle:Order');
+
+        $date = new \DateTime();
+        $date->setTime(0, 0, 0);
+        /** @var Order[] $orders */
+        $orders = $orderRepository->findBy(['date' => $date]);
+
         $message = \Swift_Message::newInstance()
             ->setSubject('Commande')
-            ->setFrom('send@example.com')
+            ->setFrom($this->orderSenderEmail)
             ->setTo($this->container->getParameter('order_restaurant_email'))
             ->setBody(
                 $this->twig->renderView(
-                // app/Resources/views/Emails/registration.html.twig
-                    'Emails/registration.html.twig',
-                    array('name' => '')
+                    'Emails/order.html.twig',
+                    [
+                        'name' => $name,
+                        'hour' => $hour,
+                        'phoneNumber' => $phoneNumber,
+                        'orders' => $orders,
+                    ]
                 ),
                 'text/html'
             );

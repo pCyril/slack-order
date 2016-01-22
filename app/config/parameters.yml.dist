@@ -21,6 +21,7 @@ parameters:
     bonjour_madame_token: bonjourMadameSlackToken
     order_command_token: orderCommandSlackToken
     order_restaurant_email: email.order@domain.tld
+    order_sender_email: email.order@domain.tld
 
     order_command_name: /bagel
     order_restaurant_name: "Bagel Time"

@@ -34,6 +34,9 @@ Tout est dans la configuration
     - `order_restaurant_email` Du coup si vous avez activé l'envoi de l'email vous faut un email
         - Exemple: jean@dupont.fr
 
+    - `order_sender_email` L'email de votre entreprise pour que le restaurant sache qui a commandé
+        - Exemple: contact@entreprise.fr
+
 ## Comment ça fonctionne ?
 
     - Une fois installé et configuré vous aurez ceci :
