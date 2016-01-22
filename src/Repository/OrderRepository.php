@@ -1,8 +1,8 @@
 <?php
 
-namespace AppBundle\Repository;
+namespace SlackOrder\Repository;
 
-use AppBundle\Entity\Order;
+use SlackOrder\Entity\Order;
 use Doctrine\ORM\EntityRepository;
 
 /**

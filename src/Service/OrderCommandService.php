@@ -1,12 +1,11 @@
 <?php
 
-namespace AppBundle\Service;
+namespace SlackOrder\Service;
 
-use AppBundle\Entity\Order;
-use AppBundle\Repository\OrderRepository;
+use SlackOrder\Entity\Order;
+use SlackOrder\Repository\OrderRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\NoResultException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class OrderCommandService {
 
@@ -24,9 +23,6 @@ class OrderCommandService {
 
     /** @var EntityManager $em */
     private $em;
-
-    /** @var ContainerInterface $container */
-    private $container;
 
     /** @var \Swift_Mailer */
     private $mailer;
@@ -55,24 +51,21 @@ class OrderCommandService {
     /** @var  String */
     private $orderSenderEmail;
 
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
+    public function __construct(EntityManager $entityManager, \Swift_Mailer $mailer, \Twig_Environment $twig, array $orderConfig)
     {
-        $this->container = $container;
-        $this->em = $container->get('doctrine')->getManager();
-        $this->mailer = $container->get('mailer');
-        $this->twig = $container->get('twig');
+        $this->em = $entityManager;
+        $this->mailer = $mailer;
+        $this->twig = $twig;
 
-        $this->orderCommandName = $container->getParameter('order_command_name');
-        $this->orderRestaurantName = $container->getParameter('order_restaurant_name');
-        $this->orderRestaurantPhoneNumber = $container->getParameter('order_restaurant_phone_number');
-        $this->orderStartHour = $container->getParameter('order_start_hour');
-        $this->orderEndHour = $container->getParameter('order_end_hour');
-        $this->orderSendByMailActivated = $container->getParameter('order_send_by_mail_activate');
-        $this->orderExample = $container->getParameter('order_example');
-        $this->orderSenderEmail = $container->getParameter('order_sender_email');
+        $this->orderCommandName = $orderConfig['name'];
+        $this->orderRestaurantName = $orderConfig['restaurant']['name'];
+        $this->orderRestaurantPhoneNumber = $orderConfig['restaurant']['phone_number'];
+        $this->orderRestaurantEmail = $orderConfig['restaurant']['email'];
+        $this->orderStartHour = $orderConfig['start_hour'];
+        $this->orderEndHour = $orderConfig['end_hour'];
+        $this->orderSendByMailActivated = $orderConfig['send_by_mail'];
+        $this->orderExample = $orderConfig['example'];
+        $this->orderSenderEmail = $orderConfig['sender_email'];
     }
 
     /**
@@ -83,7 +76,7 @@ class OrderCommandService {
     public function addOrder($name, $order)
     {
         /** @var OrderRepository $orderRepository */
-        $orderRepository = $this->em->getRepository('AppBundle:Order');
+        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
         if (!($this->inTime())) {
 
@@ -126,7 +119,7 @@ class OrderCommandService {
     public function cancelOrder($name)
     {
         /** @var OrderRepository $orderRepository */
-        $orderRepository = $this->em->getRepository('AppBundle:Order');
+        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
         if (!($this->inTime())) {
             return [
@@ -164,7 +157,7 @@ class OrderCommandService {
     public function orderList()
     {
         /** @var OrderRepository $orderRepository */
-        $orderRepository = $this->em->getRepository('AppBundle:Order');
+        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
@@ -203,7 +196,7 @@ class OrderCommandService {
     public function send($name, $params)
     {
         /** @var OrderRepository $orderRepository */
-        $orderRepository = $this->em->getRepository('AppBundle:Order');
+        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
         try {
             $orderEntity = $orderRepository->getFirstOrderToday();
@@ -313,7 +306,7 @@ class OrderCommandService {
     private function sendEmail($hour, $phoneNumber, $name)
     {
         /** @var OrderRepository $orderRepository */
-        $orderRepository = $this->em->getRepository('AppBundle:Order');
+        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
@@ -323,7 +316,7 @@ class OrderCommandService {
         $message = \Swift_Message::newInstance()
             ->setSubject('Commande')
             ->setFrom($this->orderSenderEmail)
-            ->setTo($this->container->getParameter('order_restaurant_email'))
+            ->setTo($this->orderRestaurantEmail)
             ->setBody(
                 $this->twig->render(
                     'Emails/order.html.twig',
