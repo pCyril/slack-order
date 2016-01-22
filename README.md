@@ -41,7 +41,7 @@ Tout est dans la configuration
 
     - Une fois installé et configuré vous aurez ceci :
 
-    ![alt text](https://www.devexcuses.fr/images/slack-order.jpg "Exemple")
+![alt text](https://www.devexcuses.fr/images/slack-order.jpg "Exemple")
             
 ## Le petit plus: 
  
