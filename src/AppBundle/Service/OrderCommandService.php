@@ -222,16 +222,16 @@ class OrderCommandService {
         $hour = $params[0];
         if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $hour)) {
             return [
-                'text' => '*Le format de l\'heure n\'est pas correct*',
+                'text' => sprintf('*Le format de l\'heure n\'est pas correct (%s)*', $hour),
             ];
         }
 
         unset($params[0]);
         $phoneNumber = implode('', $params);
 
-        if(!preg_match('/^[0-9]{10}$/', $hour)) {
+        if(!preg_match('/^[0-9]{10}$/', $phoneNumber)) {
             return [
-                'text' => '*Le format du numéro de téléphone n\'est pas correct*',
+                'text' => sprintf('*Le format du numéro de téléphone n\'est pas correct (%s)*', $phoneNumber),
             ];
         }
 
