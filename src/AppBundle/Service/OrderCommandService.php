@@ -31,6 +31,7 @@ class OrderCommandService {
     /** @var \Swift_Mailer */
     private $mailer;
 
+    /** @var \Twig_Environment  */
     private $twig;
 
     /** @var  String */
@@ -324,7 +325,7 @@ class OrderCommandService {
             ->setFrom($this->orderSenderEmail)
             ->setTo($this->container->getParameter('order_restaurant_email'))
             ->setBody(
-                $this->twig->renderView(
+                $this->twig->render(
                     'Emails/order.html.twig',
                     [
                         'name' => $name,
