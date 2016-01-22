@@ -2,7 +2,11 @@
 
 Il est souvent laborieux de passer une commande groupée, c'est pourquoi j'ai décidé de developper cette commande slack
 
-## Comment ça fonctionne ?
+## Comment ça s'installe ?
+
+Il vous faudra tout  d'abord installer l'application sur un serveur web classique avec une petite base de données et pouvoir appeler l'url en HTTPS
+
+Ensuite vous devrez configurer votre [commande dans l'interface de Slack](https://my.slack.com/services/new/slash-commands) (les droits admins sont nécessaires)
 
 Tout est dans la configuration
 
@@ -29,6 +33,12 @@ Tout est dans la configuration
             
     - `order_restaurant_email` Du coup si vous avez activé l'envoi de l'email vous faut un email
         - Exemple: jean@dupont.fr
+
+## Comment ça fonctionne ?
+
+    - Une fois installé et configuré vous aurez ceci :
+
+    ![alt text](https://www.devexcuses.fr/images/slack-order.jpg "Exemple")
             
 ## Le petit plus: 
  
