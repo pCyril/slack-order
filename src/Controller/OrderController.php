@@ -1,33 +1,28 @@
 <?php
 
-namespace AppBundle\Controller;
+namespace SlackOrder\Controller;
 
-use AppBundle\Service\OrderCommandService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use SlackOrder\Application;
+use SlackOrder\Service\OrderCommandService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class OrderController extends Controller
+class OrderController
 {
-    /**
-     * @Route("/order", name="order")
-     */
-    public function orderAction(Request $request)
+    public function orderAction(Application $app, Request $request)
     {
-            if ($request->get('token') !== $this->getParameter('order_command_token')) {
+        $config = $app['config'];
+
+        if ($request->get('token') !== $config['order']['token']) {
             throw new \InvalidArgumentException('Bad token');
         }
 
-        /** @var OrderCommandService $orderCommandService */
-        $orderCommandService = $this->get('order_command_service');
+        $orderCommandService = new OrderCommandService(
+            $app['doctrine.manager'], $app['mailer'], $app['twig'], $config['order']);
 
         $text = $request->get('text');
-
         $text = !empty($text) ? $text : OrderCommandService::ORDER_COMMAND_HELP;
-
         $textExploded = explode(' ', $text);
-
         switch($textExploded[0]) {
             case OrderCommandService::ORDER_COMMAND_HELP:
             default:
@@ -51,5 +46,4 @@ class OrderController extends Controller
 
         return new JsonResponse($data);
     }
-
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace AppBundle\Entity;
+namespace SlackOrder\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="order_list")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\OrderRepository")
+ * @ORM\Entity(repositoryClass="SlackOrder\Repository\OrderRepository")
  */
 class Order
 {
