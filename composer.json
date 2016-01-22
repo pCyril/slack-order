@@ -1,14 +1,11 @@
 {
-    "name": "symfony/framework-standard-edition",
+    "name": "pCyril/slack-order",
     "license": "MIT",
     "type": "project",
-    "description": "The \"Symfony Standard Edition\" distribution",
+    "description": "This project facilitate group order in Slack",
     "autoload": {
         "psr-4": { "": "src/" },
         "classmap": [ "app/AppKernel.php", "app/AppCache.php" ]
-    },
-    "autoload-dev": {
-        "psr-4": { "Tests\\": "tests/" }
     },
     "require": {
         "php": ">=5.5.9",
