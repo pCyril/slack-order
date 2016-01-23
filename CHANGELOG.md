@@ -11,4 +11,4 @@ CHANGELOG for v1.0.x
 * v1.0.0
     * Migrate Symfony3 to Silex (youknowriad)
     * Use pdo_sqlite instead of mysql (youknowriad)
-    * fix miss typed words (aduroy)
+    * Fix miss typed words (aduroy)
