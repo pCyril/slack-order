@@ -6,20 +6,9 @@ use SlackOrder\Entity\Order;
 use SlackOrder\Repository\OrderRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\NoResultException;
+use Symfony\Component\Translation\Translator;
 
 class OrderCommandService {
-
-    const ORDER_COMMAND_LIST = 'liste';
-
-    const ORDER_COMMAND_ORDER = 'commande';
-
-    const ORDER_COMMAND_CANCEL = 'annuler';
-
-    const ORDER_COMMAND_HELP = 'help';
-
-    const ORDER_COMMAND_RANDOM = 'aléatoire';
-
-    const ORDER_COMMAND_SEND = 'envoyer';
 
     /** @var EntityManager $em */
     private $em;
@@ -29,6 +18,9 @@ class OrderCommandService {
 
     /** @var \Twig_Environment  */
     private $twig;
+
+    /** @var  Translator */
+    private $translator;
 
     /** @var  String */
     private $orderCommandName;
@@ -51,11 +43,13 @@ class OrderCommandService {
     /** @var  String */
     private $orderSenderEmail;
 
-    public function __construct(EntityManager $entityManager, \Swift_Mailer $mailer, \Twig_Environment $twig, array $orderConfig)
+    public function __construct(
+        EntityManager $entityManager, \Swift_Mailer $mailer, \Twig_Environment $twig, Translator $translator, array $orderConfig)
     {
         $this->em = $entityManager;
         $this->mailer = $mailer;
         $this->twig = $twig;
+        $this->translator = $translator;
 
         $this->orderCommandName = $orderConfig['name'];
         $this->orderRestaurantName = $orderConfig['restaurant']['name'];
@@ -78,14 +72,16 @@ class OrderCommandService {
         /** @var OrderRepository $orderRepository */
         $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
-        if (!($this->inTime())) {
+        if (!$this->inTime()) {
 
             return [
-                'text' => sprintf('Désolé les commandes ne sont accéptés que de %s à %s', $this->orderStartHour, $this->orderEndHour),
+                'text' => $this->translator->trans('order.sorry.notInTime',
+                    ['%orderStartHour%' => $this->orderStartHour,'%orderEndHour%' => $this->orderEndHour]),
                 'attachments' => [
                     [
                         'fallback' => 'Fail ?',
-                        'text' => sprintf('Tu peux quand même appeler %s au %s', $this->orderRestaurantName, $this->orderRestaurantPhoneNumber),
+                        'text' => $this->translator->trans('order.sorry.notInTimePlanB',
+                            ['%restaurantName%' => $this->orderRestaurantName, '%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
                     ],
                 ],
             ];
@@ -107,7 +103,8 @@ class OrderCommandService {
 
         return [
             'response_type' => 'in_channel',
-            'text' => sprintf('%s a rejoint la commande groupé à midi si tu souhaites en faire de même utilise la commande `%s`', $name, $this->orderCommandName),
+            'text' => $this->translator->trans('order.success',
+                ['%name%' => $name, '%commandName%' => $this->orderCommandName]),
             'mrkdwn' => true,
         ];
     }
@@ -121,13 +118,14 @@ class OrderCommandService {
         /** @var OrderRepository $orderRepository */
         $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
-        if (!($this->inTime())) {
+        if (!$this->inTime()) {
             return [
-                'text' => 'Il est trop tard pour annuler ta commande.',
+                'text' => $this->translator->trans('order.cancel.tooLate'),
                 'attachments' => [
                     [
                         'fallback' => 'Fail ?',
-                        'text' => sprintf('Tu peux quand même essayer d\'appeler %s au %s', $this->orderRestaurantName, $this->orderRestaurantPhoneNumber),
+                        'text' => $this->translator->trans('order.cancel.tooLatePlanB',
+                            ['%restaurantName%' => $this->orderRestaurantName, '%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
                         'color' => 'danger',
                     ],
                 ],
@@ -139,7 +137,7 @@ class OrderCommandService {
         $orderEntity = $orderRepository->findOneBy(['name' => $name, 'date' => $date]);
         if (null === $orderEntity) {
             return [
-                'text' => 'Tu n\'avais rien commandé, mais dans le doute tu as bien fait.',
+                'text' => $this->translator->trans('order.cancel.noOrder'),
             ];
         }
 
@@ -147,7 +145,7 @@ class OrderCommandService {
         $this->em->flush();
 
         return [
-            'text' => 'Ta commande a bien été annulée.',
+            'text' => $this->translator->trans('order.cancel.success'),
         ];
     }
 
@@ -166,7 +164,7 @@ class OrderCommandService {
 
         if (count($orders) === 0) {
             return [
-                'text' => 'Personne n\'a commandé aujourd\'hui',
+                'text' => $this->translator->trans('order.list.noOrderPlaced'),
             ];
         }
 
@@ -174,15 +172,16 @@ class OrderCommandService {
 
         foreach ($orders as $order) {
             $attachment = [
-                'fallback' => sprintf('%s a commandé : %s', $order->getName(), $order->getOrder()),
-                'text' => sprintf('%s a commandé : %s', $order->getName(), $order->getOrder()),
+                'fallback' => 'Fail ?',
+                'text' => $this->translator->trans('order.list.detail',
+                    ['%name%' => $order->getName(), '%orderRow%' => $order->getOrder()]),
             ];
 
             $attachments[] = $attachment;
         }
 
         return [
-            'text' => '*Voici les personnes avec qui tu vas manger :*',
+            'text' => $this->translator->trans('order.list.title'),
             'mrkdwn' => true,
             'attachments' => $attachments
         ];
@@ -202,26 +201,27 @@ class OrderCommandService {
             $orderEntity = $orderRepository->getFirstOrderToday();
         }catch (NoResultException $e) {
             return [
-                'text' => '*Il n\'y a pas eu de commande aujourd\'hui.*',
+                'text' => $this->translator->trans('order.send.noOrderPlacedToday'),
             ];
         }
 
         if ($orderEntity->getName() !== $name) {
             return [
-                'text' => sprintf('*Ce n\'est pas toi qui a initié la commande, demande à %s si il peut envoyer la commande.*', $orderEntity->getName()),
+                'text' => $this->translator->trans('order.send.notAuthorizedToSendOrders', ['%name%' => $orderEntity->getName()]),
             ];
         }
 
         if ($this->orderSendByMailActivated == false) {
             return [
-                'text' => sprintf('*L\'envoie de la commande par email n\'est pas activé merci de passer la commande par téléphone au %s.*', $this->orderRestaurantPhoneNumber),
+                'text' => $this->translator->trans('order.send.orderByEmailNotActivated',
+                    ['%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
             ];
         }
 
         $hour = $params[1];
         if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $hour)) {
             return [
-                'text' => sprintf('*Le format de l\'heure n\'est pas correct (%s)*', $hour),
+                'text' => $this->translator->trans('order.send.invalidHourFormat'),
             ];
         }
 
@@ -230,22 +230,24 @@ class OrderCommandService {
 
         if(!preg_match('/^[0-9]{10}$/', $phoneNumber)) {
             return [
-                'text' => sprintf('*Le format du numéro de téléphone n\'est pas correct (%s)*', $phoneNumber),
+                'text' => $this->translator->trans('order.send.invalidPhoneNumberFormat'),
             ];
         }
 
         if ($this->sendEmail($hour, $phoneNumber, $name) === 0) {
             return [
-                'text' => sprintf('*L\'email n\'a pas été envoyé merci de passer la commande par téléphone au %s.*', $this->orderRestaurantPhoneNumber),
+                'text' => $this->translator->trans('order.send.fail',
+                    ['%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
             ];
         }
 
         return [
-            'text' => '*La commande a été envoyée*',
+            'text' => $this->translator->trans('order.send.success'),
             'attachments' => [
                 [
                     'fallback' => 'Fail ?',
-                    'text' => sprintf('%s, tu peux quand même confirmer par téléphone au %s ?', ucfirst($orderEntity->getName()), $this->orderRestaurantPhoneNumber),
+                    'text' => $this->translator->trans('order.send.successConfirm',
+                        ['%name%' => ucfirst($orderEntity->getName()), '%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
                     'color' => 'danger',
                 ],
             ],
@@ -258,17 +260,25 @@ class OrderCommandService {
      */
     public function help()
     {
+        $text = $this->translator->trans('order.help',
+            [
+                '%commandName%' => $this->orderCommandName,
+                '%orderExample%' => $this->orderExample,
+                '%restaurantName%' => $this->orderRestaurantName,
+                '%optionPlace%' => $this->translator->trans("command.options.place"),
+                '%optionCancel%' => $this->translator->trans("command.options.cancel"),
+                '%optionList%' => $this->translator->trans("command.options.list"),
+                '%optionSend%' => $this->translator->trans("command.options.send"),
+            ]
+        );
+
         return [
-            'text' => '*Tu as faim mais tu ne sais pas comment faire ?*
-                - Si tu souhaites passer ou modifier une commande. `'.$this->orderCommandName.' commande '.$this->orderExample.'`
-                - Si tu n\'as plus faim. `'.$this->orderCommandName.' annuler`
-                - Tu souhaites savoir avec qui tu vas manger ? `'.$this->orderCommandName.' liste`
-                - Tu veux envoyer la commande à '.$this->orderRestaurantName.' ? `'.$this->orderCommandName.' envoyer hh:mm 06********`',
+            'text' => $text,
             'mrkdwn' => true,
             'attachments' => [
                 [
                     'fallback' => 'Fail ?',
-                    'text' => sprintf('Important: Tu as jusqu\'à %s pour passer ta commande.', $this->orderEndHour),
+                    'text' => $this->translator->trans('order.helpDanger', ['%endHourOrderAllow%' => $this->orderEndHour]),
                     'color' => 'danger',
                 ],
             ],
@@ -281,10 +291,10 @@ class OrderCommandService {
     private function inTime()
     {
         if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $this->orderStartHour)) {
-            throw new \InvalidArgumentException('Le paramètre de order_star_hour est invalide merci d\'utiliser le format 08:00');
+            throw new \InvalidArgumentException('Invalid order start hour format in config.yml');
         }
         if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $this->orderEndHour)) {
-            throw new \InvalidArgumentException('Le paramètre de order_end_hour est invalide merci d\'utiliser le format 08:00');
+            throw new \InvalidArgumentException('Invalid order end hour format in config.yml');
         }
         $currentDate = new \DateTime();
         $startDate = new \DateTime();
@@ -314,7 +324,7 @@ class OrderCommandService {
         $orders = $orderRepository->findBy(['date' => $date]);
 
         $message = \Swift_Message::newInstance()
-            ->setSubject('Commande')
+            ->setSubject($this->translator->trans('email.subject'))
             ->setFrom($this->orderSenderEmail)
             ->setTo($this->orderRestaurantEmail)
             ->setBody(

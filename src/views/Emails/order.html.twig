@@ -1,10 +1,10 @@
 <html>
     <body>
-        <h3>Bonjour,</h3>
+        <h3>{{ 'email.hello'|trans }},</h3>
 
-        <p>Nous souhaiterions passer commande pour {{ hour }}, merci de me rappeler au {{ phoneNumber }} si ce n'est pas possible</p>
+        <p>{{ 'email.firstPartSentence'|trans }} {{ hour }}, {{ 'email.secondPartSentence'|trans }} {{ phoneNumber }} {{ 'email.endPartSentence'|trans }}</p>
 
-        <p>Notre commande :</p>
+        <p>{{ 'email.ourOrder'|trans }}:</p>
 
         <ul>
             {% for order in orders %}
@@ -12,6 +12,6 @@
             {% endfor %}
         </ul>
 
-        <p>Merci {{ name }}</p>
+        <p>{{ 'email.thanks'|trans }} {{ name }}</p>
     </body>
 </html>
