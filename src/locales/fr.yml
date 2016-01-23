@@ -5,6 +5,7 @@ command:
     help: "aide"
     cancel: "annuler"
     send: "envoyer"
+    history: "historique"
 
 order:
   sorry:
@@ -18,10 +19,16 @@ order:
     success: "Ta commande a bien été annulée."
   list:
     noOrderPlaced: "Personne n'a commandé aujourd'hui."
-    detail: "%name% a commandé : %orderRow%."
+    detail: "%name% a commandé : %orderDetail%."
     title: "*Voici les personnes avec qui tu vas manger :*"
+  history:
+    never: "Tu n'as jamais passé de commande, ou elle n'a pas encore été envoyée."
+    detail: "Tu as commandé %orderDetail% le %orderDate%"
+    dateFormat: "d/m/Y"
+    title: "*Voici l'historique de tes commandes :*"
   send:
-    noOrderPlacedToday: "*Il n'y a pas eu de commande aujourd'hui.*"
+    toEarly: "*Il est trop tôt pour envoyer la commande, tu dois attendre %orderEndHour% pour l'envoyer.*"
+    noOrderPlacedToday: "*Il n'y a pas eu de commande aujourd'hui, ou elles sont déjà envoyées.*"
     notAuthorizedToSendOrders: "*Ce n'est pas toi qui a initié la commande, demande à %name% si il peut envoyer la commande.*"
     orderByEmailNotActivated: "*L'envoie de la commande par email n'est pas activé merci de passer la commande par téléphone au %restaurantPhoneNumber%.*"
     invalidHourFormat: "*Le format de l'heure n'est pas correct.*"
@@ -29,8 +36,14 @@ order:
     fail: "*L'email n'a pas été envoyé merci de passer la commande par téléphone au %restaurantPhoneNumber.*"
     success: "*La commande a été envoyée*"
     successConfirm: "%name%, tu peux quand même confirmer par téléphone au %restaurantPhoneNumber% ?"
-  help: "*Tu as faim mais tu ne sais pas comment faire ?*\n                - Si tu souhaites passer ou modifier une commande. `%commandName% %optionPlace% %orderExample%`\n                - Si tu n'as plus faim. `%commandName% %optionCancel%`\n                - Tu souhaites savoir avec qui tu vas manger ? `%commandName% %optionList%`\n                - Tu veux envoyer la commande à %restaurantName% ? `%commandName% %optionSend% hh:mm 06********`"
-  helpDanger: "Important: Tu as jusqu'à %endHourOrderAllow% pour passer ta commande."
+  help: |
+   *Tu as faim mais tu ne sais pas comment faire ?*
+          - Si tu souhaites passer ou modifier une commande. `%commandName% %optionPlace% %orderExample%`
+          - Si tu n'as plus faim. `%commandName% %optionCancel%`
+          - Tu souhaites savoir avec qui tu vas manger ? `%commandName% %optionList%`
+          - Tu souhaites voir tes anciennes commandes ? `%commandName% %optionHistory%`
+          - Tu veux envoyer la commande à %restaurantName% ? `%commandName% %optionSend% hh:mm 06********`
+  helpDanger: "Important : Tu as jusqu'à %endHourOrderAllow% pour passer ta commande."
 
 email:
   subject: "Commande"

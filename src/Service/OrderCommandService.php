@@ -159,8 +159,7 @@ class OrderCommandService {
 
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
-        /** @var Order[] $orders */
-        $orders = $orderRepository->findBy(['date' => $date]);
+        $order = $orderRepository->findBy(['date' => $date]);
 
         if (count($orders) === 0) {
             return [
@@ -174,7 +173,7 @@ class OrderCommandService {
             $attachment = [
                 'fallback' => 'Fail ?',
                 'text' => $this->translator->trans('order.list.detail',
-                    ['%name%' => $order->getName(), '%orderRow%' => $order->getOrder()]),
+                    ['%name%' => $order->getName(), '%orderDetail%' => $order->getOrder()]),
             ];
 
             $attachments[] = $attachment;
@@ -198,23 +197,25 @@ class OrderCommandService {
         $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
         try {
-            $orderEntity = $orderRepository->getFirstOrderToday();
+            $orderEntity = $orderRepository->getFirstOrderNotSentToday();
         }catch (NoResultException $e) {
             return [
                 'text' => $this->translator->trans('order.send.noOrderPlacedToday'),
+                'mrkdwn' => true,
+            ];
+        }
+
+        if ($this->inTime()) {
+            return [
+                'text' => $this->translator->trans('order.send.toEarly', ['%orderEndHour%' => $this->orderEndHour]),
+                'mrkdwn' => true,
             ];
         }
 
         if ($orderEntity->getName() !== $name) {
             return [
                 'text' => $this->translator->trans('order.send.notAuthorizedToSendOrders', ['%name%' => $orderEntity->getName()]),
-            ];
-        }
-
-        if ($this->orderSendByMailActivated == false) {
-            return [
-                'text' => $this->translator->trans('order.send.orderByEmailNotActivated',
-                    ['%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
+                'mrkdwn' => true,
             ];
         }
 
@@ -222,6 +223,7 @@ class OrderCommandService {
         if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $hour)) {
             return [
                 'text' => $this->translator->trans('order.send.invalidHourFormat'),
+                'mrkdwn' => true,
             ];
         }
 
@@ -231,18 +233,39 @@ class OrderCommandService {
         if(!preg_match('/^[0-9]{10}$/', $phoneNumber)) {
             return [
                 'text' => $this->translator->trans('order.send.invalidPhoneNumberFormat'),
+                'mrkdwn' => true,
             ];
         }
 
-        if ($this->sendEmail($hour, $phoneNumber, $name) === 0) {
+        /** @var OrderRepository $orderRepository */
+        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
+
+        $date = new \DateTime();
+        $date->setTime(0, 0, 0);
+        $order = $orderRepository->findBy(['date' => $date, 'sent' => false]);
+
+        if ($this->orderSendByMailActivated == false) {
+            $orderRepository->setOrderAsSent();
+
+            return [
+                'text' => $this->translator->trans('order.send.orderByEmailNotActivated',
+                    ['%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
+            ];
+        }
+
+        if ($this->sendEmail($hour, $phoneNumber, $name, $orders) === 0) {
+
             return [
                 'text' => $this->translator->trans('order.send.fail',
                     ['%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
             ];
         }
 
+        $orderRepository->setOrderAsSent();
+
         return [
             'text' => $this->translator->trans('order.send.success'),
+            'mrkdwn' => true,
             'attachments' => [
                 [
                     'fallback' => 'Fail ?',
@@ -252,7 +275,45 @@ class OrderCommandService {
                 ],
             ],
         ];
+    }
 
+    /**
+     * @param $name
+     * @return array
+     */
+    public function historyList($name)
+    {
+        /** @var OrderRepository $orderRepository */
+        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
+
+        /** @var Order[] $orders */
+        $orders = $orderRepository->findBy(['name' => $name, 'sent' => true]);
+
+        if (count($orders) === 0) {
+            return [
+                'text' => $this->translator->trans('order.history.never'),
+            ];
+        }
+
+        $attachments = [];
+
+        $dateFormat = $this->translator->trans('order.history.dateFormat');
+
+        foreach ($orders as $order) {
+            $attachment = [
+                'fallback' => 'Fail ?',
+                'text' => $this->translator->trans('order.history.detail',
+                    ['%orderDetail%' => $order->getOrder(), '%orderDate%' => $order->getDate()->format($dateFormat)]),
+            ];
+
+            $attachments[] = $attachment;
+        }
+
+        return [
+            'text' => $this->translator->trans('order.history.title'),
+            'mrkdwn' => true,
+            'attachments' => $attachments
+        ];
     }
 
     /**
@@ -269,6 +330,7 @@ class OrderCommandService {
                 '%optionCancel%' => $this->translator->trans("command.options.cancel"),
                 '%optionList%' => $this->translator->trans("command.options.list"),
                 '%optionSend%' => $this->translator->trans("command.options.send"),
+                '%optionHistory%' => $this->translator->trans("command.options.history"),
             ]
         );
 
@@ -311,18 +373,11 @@ class OrderCommandService {
      * @param String $hour
      * @param String $phoneNumber
      * @param String $name
+     * @param Order[] $orders
      * @return int
      */
-    private function sendEmail($hour, $phoneNumber, $name)
+    private function sendEmail($hour, $phoneNumber, $name, $orders)
     {
-        /** @var OrderRepository $orderRepository */
-        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
-
-        $date = new \DateTime();
-        $date->setTime(0, 0, 0);
-        /** @var Order[] $orders */
-        $orders = $orderRepository->findBy(['date' => $date]);
-
         $message = \Swift_Message::newInstance()
             ->setSubject($this->translator->trans('email.subject'))
             ->setFrom($this->orderSenderEmail)

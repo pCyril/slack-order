@@ -41,6 +41,13 @@ class Order
     private $date;
 
     /**
+     * @var boolean
+     *
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private $sent = false;
+
+    /**
      * @return int
      */
     public function getId()
@@ -101,6 +108,25 @@ class Order
     public function setDate($date)
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSent()
+    {
+        return $this->sent;
+    }
+
+    /**
+     * @param $sent
+     * @return $this
+     */
+    public function setSent($sent)
+    {
+        $this->sent = $sent;
 
         return $this;
     }
