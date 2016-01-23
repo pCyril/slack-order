@@ -32,6 +32,9 @@ class OrderCommandService {
     private $orderRestaurantPhoneNumber;
 
     /** @var  String */
+    private $orderRestaurantMenuUrl;
+
+    /** @var  String */
     private $orderStartHour;
 
     /** @var  String */
@@ -55,6 +58,7 @@ class OrderCommandService {
         $this->orderRestaurantName = $orderConfig['restaurant']['name'];
         $this->orderRestaurantPhoneNumber = $orderConfig['restaurant']['phone_number'];
         $this->orderRestaurantEmail = $orderConfig['restaurant']['email'];
+        $this->orderRestaurantMenuUrl = $orderConfig['restaurant']['menu_url'];
         $this->orderStartHour = $orderConfig['start_hour'];
         $this->orderEndHour = $orderConfig['end_hour'];
         $this->orderSendByMailActivated = $orderConfig['send_by_mail'];
@@ -159,7 +163,8 @@ class OrderCommandService {
 
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
-        $order = $orderRepository->findBy(['date' => $date]);
+        /** @var Order[] $orders */
+        $orders = $orderRepository->findBy(['date' => $date]);
 
         if (count($orders) === 0) {
             return [
@@ -183,6 +188,29 @@ class OrderCommandService {
             'text' => $this->translator->trans('order.list.title'),
             'mrkdwn' => true,
             'attachments' => $attachments
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function menu()
+    {
+        if (null === $this->orderRestaurantMenuUrl) {
+            return [
+                'text' => $this->translator->trans('order.menu.noMenu'),
+            ];
+        }
+
+        return [
+            'text' => $this->translator->trans('order.menu.title'),
+            'mrkdwn' => true,
+            'attachments' => [
+                [
+                    'fallback' => 'Fail ?',
+                    'title_link' => $this->orderRestaurantMenuUrl,
+                ],
+            ],
         ];
     }
 
@@ -242,7 +270,7 @@ class OrderCommandService {
 
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
-        $order = $orderRepository->findBy(['date' => $date, 'sent' => false]);
+        $orders = $orderRepository->findBy(['date' => $date, 'sent' => false]);
 
         if ($this->orderSendByMailActivated == false) {
             $orderRepository->setOrderAsSent();

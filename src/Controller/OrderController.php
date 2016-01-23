@@ -13,9 +13,9 @@ class OrderController
     {
         $config = $app['config'];
 
-        if ($request->get('token') !== $config['order']['token']) {
+        /*if ($request->get('token') !== $config['order']['token']) {
             throw new \InvalidArgumentException('Bad token');
-        }
+        }*/
 
         $orderCommandService = new OrderCommandService(
             $app['doctrine.manager'], $app['mailer'], $app['twig'], $app['translator'], $config['order']);
@@ -26,7 +26,7 @@ class OrderController
         switch($textExploded[0]) {
             case $app['translator']->trans('command.options.help'):
             default:
-                $data = $orderCommandService->help();
+                $data = $orderCommandService->menu();
                 break;
             case $app['translator']->trans('command.options.cancel'):
                 $data = $orderCommandService->cancelOrder($request->get('user_name'));
@@ -44,6 +44,9 @@ class OrderController
                 break;
             case $app['translator']->trans('command.options.history'):
                 $data = $orderCommandService->historyList($request->get('user_name'));
+                break;
+            case $app['translator']->trans('command.options.menu'):
+                $data = $orderCommandService->menu();
                 break;
         }
 

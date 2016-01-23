@@ -6,6 +6,7 @@ command:
     cancel: "annuler"
     send: "envoyer"
     history: "historique"
+    menu: "menu"
 
 order:
   sorry:
@@ -26,6 +27,9 @@ order:
     detail: "Tu as commandé %orderDetail% le %orderDate%"
     dateFormat: "d/m/Y"
     title: "*Voici l'historique de tes commandes :*"
+  menu:
+    title: "*Ca devrait t'aider pour te décider :*"
+    noMenu: "*Le restaurant n'a pas de menu en ligne, demande à un collègue.*"
   send:
     toEarly: "*Il est trop tôt pour envoyer la commande, tu dois attendre %orderEndHour% pour l'envoyer.*"
     noOrderPlacedToday: "*Il n'y a pas eu de commande aujourd'hui, ou elles sont déjà envoyées.*"
@@ -40,6 +44,7 @@ order:
    *Tu as faim mais tu ne sais pas comment faire ?*
           - Si tu souhaites passer ou modifier une commande. `%commandName% %optionPlace% %orderExample%`
           - Si tu n'as plus faim. `%commandName% %optionCancel%`
+          - Tu ne sais pas quoi manger ? `%commandName% %optionMenu%`
           - Tu souhaites savoir avec qui tu vas manger ? `%commandName% %optionList%`
           - Tu souhaites voir tes anciennes commandes ? `%commandName% %optionHistory%`
           - Tu veux envoyer la commande à %restaurantName% ? `%commandName% %optionSend% hh:mm 06********`
