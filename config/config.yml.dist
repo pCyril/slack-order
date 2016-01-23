@@ -19,3 +19,6 @@ order:
    send_by_mail: true
    example: test
    sender_email: sender@host.com
+
+translator:
+    locale_fallbacks: [fr]

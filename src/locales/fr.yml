@@ -1,0 +1,42 @@
+command:
+  options:
+    place: "commande"
+    list: "liste"
+    help: "aide"
+    cancel: "annuler"
+    send: "envoyer"
+
+order:
+  sorry:
+    notInTime: "Désolé les commandes ne sont accéptés que de %orderStartHour% à %orderEndHour%"
+    notInTimePlanB: "Tu peux quand même appeler %restaurantName% au %restaurantPhoneNumber%"
+  success: "%name% a rejoint la commande groupé à midi si tu souhaites en faire de même utilise la commande `%commandName%`"
+  cancel:
+    tooLate: "Il est trop tard pour annuler ta commande."
+    tooLatePlanB: "Tu peux quand même essayer d'appeler %restaurantName% au %restaurantPhoneNumber%."
+    noOrder: "Tu n'avais rien commandé, mais dans le doute tu as bien fait."
+    success: "Ta commande a bien été annulée."
+  list:
+    noOrderPlaced: "Personne n'a commandé aujourd'hui."
+    detail: "%name% a commandé : %orderRow%."
+    title: "*Voici les personnes avec qui tu vas manger :*"
+  send:
+    noOrderPlacedToday: "*Il n'y a pas eu de commande aujourd'hui.*"
+    notAuthorizedToSendOrders: "*Ce n'est pas toi qui a initié la commande, demande à %name% si il peut envoyer la commande.*"
+    orderByEmailNotActivated: "*L'envoie de la commande par email n'est pas activé merci de passer la commande par téléphone au %restaurantPhoneNumber%.*"
+    invalidHourFormat: "*Le format de l'heure n'est pas correct.*"
+    invalidPhoneNumberFormat: "*Le format du numéro de téléphone n'est pas correct.*"
+    fail: "*L'email n'a pas été envoyé merci de passer la commande par téléphone au %restaurantPhoneNumber.*"
+    success: "*La commande a été envoyée*"
+    successConfirm: "%name%, tu peux quand même confirmer par téléphone au %restaurantPhoneNumber% ?"
+  help: "*Tu as faim mais tu ne sais pas comment faire ?*\n                - Si tu souhaites passer ou modifier une commande. `%commandName% %optionPlace% %orderExample%`\n                - Si tu n'as plus faim. `%commandName% %optionCancel%`\n                - Tu souhaites savoir avec qui tu vas manger ? `%commandName% %optionList%`\n                - Tu veux envoyer la commande à %restaurantName% ? `%commandName% %optionSend% hh:mm 06********`"
+  helpDanger: "Important: Tu as jusqu'à %endHourOrderAllow% pour passer ta commande."
+
+email:
+  subject: "Commande"
+  hello: "Bonjour"
+  firstPartSentence: "Nous souhaiterions passer commande pour"
+  secondPartSentence: "merci de me rappeler au "
+  endPartSentence: "si ce n'est pas possible"
+  ourOrder: "Notre commande "
+  thanks: "Merci"
