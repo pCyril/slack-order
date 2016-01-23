@@ -57,7 +57,6 @@ class Application extends \Silex\Application {
         $this->get('/', function() {
             return 'Server Running';
         });
-        $this->get('/order', [$orderController, 'orderAction']);
         $this->get('/{_locale}/order', [$orderController, 'orderAction']);
     }
 
