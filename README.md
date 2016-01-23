@@ -25,6 +25,12 @@ Renommer le fichier de configuration `config/config.yml.dist` en `config/config.
  
     - `restaurant.phone_number` Le numéro de téléphone du restaurant où vous souhaitez passer commande.
         - Exemple: Vraiment ?
+        
+    - `restaurant.email` Du coup si vous avez activé l'envoi de l'email, il vous faut un email
+            - Exemple: jean@dupont.fr
+            
+    - `restaurant.menu_url` Si le restaurant à un menu en ligne, cette option peut ne pas être définie
+            - Exemple: http://restaurant.com/menu.html
                 
     - `start_hour` L'heure à laquelle les commandes peuvent commencer.
         - Exemple: "09:00"
@@ -34,9 +40,6 @@ Renommer le fichier de configuration `config/config.yml.dist` en `config/config.
             
     - `send_by_mail` Si vous souhaitez autoriser l'envoi d'un email automatique de la commande
         - Exemple: 0 ou 1
-            
-    - `restaurant.email` Du coup si vous avez activé l'envoi de l'email, il vous faut un email
-        - Exemple: jean@dupont.fr
 
     - `sender_email` L'email de votre entreprise pour que le restaurant sache qui a commandé
         - Exemple: contact@entreprise.fr

@@ -45,6 +45,9 @@ class OrderController
             case $app['translator']->trans('command.options.history'):
                 $data = $orderCommandService->historyList($request->get('user_name'));
                 break;
+            case $app['translator']->trans('command.options.menu'):
+                $data = $orderCommandService->menu();
+                break;
         }
 
         return new JsonResponse($data);
