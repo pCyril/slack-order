@@ -29,7 +29,7 @@ Renommer le fichier de configuration `config/config.yml.dist` en `config/config.
     - `restaurant.email` Du coup si vous avez activé l'envoi de l'email, il vous faut un email
             - Exemple: jean@dupont.fr
             
-    - `restaurant.menu_url` Si le restaurant à un menu en ligne, cette option peut ne pas être définie
+    - `restaurant.menu_url` Url du menu du restaurant, cette option peut ne pas être définie
             - Exemple: http://restaurant.com/menu.html
                 
     - `start_hour` L'heure à laquelle les commandes peuvent commencer.
