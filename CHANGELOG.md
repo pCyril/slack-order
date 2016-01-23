@@ -1,8 +1,12 @@
 CHANGELOG for v2.0.x
 ====================
 
+* v2.1.0 (unreleased)
+
+    * Feature #2 Add history list (pCyril)
+
 * v2.0.0
-    * feature #7 Prepare code for multilingual support (pCyril)
+    * Feature #7 Prepare code for multilingual support (pCyril)
     
     
 CHANGELOG for v1.0.x

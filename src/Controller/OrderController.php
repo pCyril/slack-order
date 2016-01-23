@@ -42,6 +42,9 @@ class OrderController
                 unset($textExploded[0]);
                 $data = $orderCommandService->send($request->get('user_name'), $textExploded);
                 break;
+            case $app['translator']->trans('command.options.history'):
+                $data = $orderCommandService->historyList($request->get('user_name'));
+                break;
         }
 
         return new JsonResponse($data);
