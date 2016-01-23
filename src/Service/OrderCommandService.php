@@ -154,7 +154,13 @@ class OrderCommandService {
      */
     public function orderList()
     {
-        $orders = $this->getOrderListOfToday();
+        /** @var OrderRepository $orderRepository */
+        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
+
+        $date = new \DateTime();
+        $date->setTime(0, 0, 0);
+        $order = $orderRepository->findBy(['date' => $date]);
+
         if (count($orders) === 0) {
             return [
                 'text' => $this->translator->trans('order.list.noOrderPlaced'),
@@ -231,7 +237,12 @@ class OrderCommandService {
             ];
         }
 
-        $orders = $this->getOrderListOfToday();
+        /** @var OrderRepository $orderRepository */
+        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
+
+        $date = new \DateTime();
+        $date->setTime(0, 0, 0);
+        $order = $orderRepository->findBy(['date' => $date, 'sent' => false]);
 
         if ($this->orderSendByMailActivated == false) {
             $orderRepository->setOrderAsSent();
@@ -264,19 +275,6 @@ class OrderCommandService {
                 ],
             ],
         ];
-    }
-
-    /**
-     * @return Order[]
-     */
-    private function getOrderListOfToday()
-    {
-        /** @var OrderRepository $orderRepository */
-        $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
-
-        $date = new \DateTime();
-        $date->setTime(0, 0, 0);
-        return $orderRepository->findBy(['date' => $date]);
     }
 
     /**
