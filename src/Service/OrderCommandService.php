@@ -332,6 +332,7 @@ class OrderCommandService {
                 '%optionCancel%' => $this->translator->trans("command.options.cancel"),
                 '%optionList%' => $this->translator->trans("command.options.list"),
                 '%optionSend%' => $this->translator->trans("command.options.send"),
+                '%optionHistory%' => $this->translator->trans("command.options.history"),
             ]
         );
 
