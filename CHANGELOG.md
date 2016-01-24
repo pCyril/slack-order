@@ -3,6 +3,7 @@ CHANGELOG for v2.0.x
 
 * v2.1.0 (unreleased)
 
+    * Feature #6 Move restaurant configuration in db (pCyril)
     * Feature #3 Add menu option (pCyril)
     * Feature #2 Add history list (pCyril)
 

@@ -12,37 +12,7 @@ Il est souvent laborieux de passer une commande groupée, c'est pourquoi j'ai d�
 
 ## Configuration
 
-Renommer le fichier de configuration `config/config.yml.dist` en `config/config.yml` et adapter le à vos besoins.
-
-    - `name` Il s'agit de la commande que vous avez configurée dans Slack. 
-        - Exemple: "/bagel" "/pizza"
-
-    - `example` L'exemple de commande que l'on peut passer pour aider les utilisateurs 
-        - Exemple: "Savoyarde" "4 fromages"
-
-    - `restaurant.name` Le nom du restaurant où vous souhaitez passer commande.
-        - Exemple: "McDo" "Mamamia Pizza"
- 
-    - `restaurant.phone_number` Le numéro de téléphone du restaurant où vous souhaitez passer commande.
-        - Exemple: Vraiment ?
-        
-    - `restaurant.email` Du coup si vous avez activé l'envoi de l'email, il vous faut un email
-            - Exemple: jean@dupont.fr
-            
-    - `restaurant.menu_url` Si le restaurant à un menu en ligne, cette option peut ne pas être définie
-            - Exemple: http://restaurant.com/menu.html
-                
-    - `start_hour` L'heure à laquelle les commandes peuvent commencer.
-        - Exemple: "09:00"
-            
-    - `end_hour` L'heure à laquelle les commandes ne sont plus acceptées.
-        - Exemple: "09:10" (Il faut être rapide)
-            
-    - `send_by_mail` Si vous souhaitez autoriser l'envoi d'un email automatique de la commande
-        - Exemple: 0 ou 1
-
-    - `sender_email` L'email de votre entreprise pour que le restaurant sache qui a commandé
-        - Exemple: contact@entreprise.fr
+* Configurer votre restaurant préféré : `.bin/console order:restaurant:create`
 
 ## Comment ça fonctionne ?
 
