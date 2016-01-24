@@ -209,6 +209,9 @@ class OrderCommandService {
                 [
                     'fallback' => 'Fail ?',
                     'title_link' => $this->orderRestaurantMenuUrl,
+                    'title' => $this->translator->trans('order.menu.urlTitle', [
+                        '%restaurantName%' => $this->orderRestaurantName
+                    ]),
                 ],
             ],
         ];
@@ -359,6 +362,7 @@ class OrderCommandService {
                 '%optionList%' => $this->translator->trans("command.options.list"),
                 '%optionSend%' => $this->translator->trans("command.options.send"),
                 '%optionHistory%' => $this->translator->trans("command.options.history"),
+                '%optionMenu%' => $this->translator->trans("command.options.menu"),
             ]
         );
 

@@ -29,6 +29,7 @@ order:
     title: "*Voici l'historique de tes commandes :*"
   menu:
     title: "*Ca devrait t'aider pour te décider :*"
+    urlTitle: "Menu de %restaurantName%"
     noMenu: "*Le restaurant n'a pas de menu en ligne, demande à un collègue.*"
   send:
     toEarly: "*Il est trop tôt pour envoyer la commande, tu dois attendre %orderEndHour% pour l'envoyer.*"
