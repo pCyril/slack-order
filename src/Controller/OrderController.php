@@ -3,6 +3,8 @@
 namespace SlackOrder\Controller;
 
 use SlackOrder\Application;
+use SlackOrder\Entity\Restaurant;
+use SlackOrder\Repository\RestaurantRepository;
 use SlackOrder\Service\OrderCommandService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,14 +13,22 @@ class OrderController
 {
     public function orderAction(Application $app, Request $request)
     {
-        $config = $app['config'];
+        /** @var RestaurantRepository $restaurantRepository */
+        $restaurantRepository = $app['doctrine.manager']->getRepository('SlackOrder\Entity\Restaurant');
+        $command = $request->get('command', '/bagel');
+        /** @var Restaurant $restaurant */
+        $restaurant = $restaurantRepository->findOneBy(['command' => $command]);
 
-        if ($request->get('token') !== $config['order']['token']) {
+        if (null === $restaurant) {
+            throw new \InvalidArgumentException(sprintf('This command %s is not configured.', $command));
+        }
+
+        if ($request->get('token') !== $restaurant->getToken()) {
             throw new \InvalidArgumentException('Bad token');
         }
 
         $orderCommandService = new OrderCommandService(
-            $app['doctrine.manager'], $app['mailer'], $app['twig'], $app['translator'], $config['order']);
+            $app['doctrine.manager'], $app['mailer'], $app['twig'], $app['translator'], $restaurant);
 
         $text = $request->get('text');
         $text = !empty($text) ? $text : $app['translator']->trans('command.options.help');

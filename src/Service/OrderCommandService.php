@@ -3,6 +3,7 @@
 namespace SlackOrder\Service;
 
 use SlackOrder\Entity\Order;
+use SlackOrder\Entity\Restaurant;
 use SlackOrder\Repository\OrderRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\NoResultException;
@@ -22,48 +23,17 @@ class OrderCommandService {
     /** @var  Translator */
     private $translator;
 
-    /** @var  String */
-    private $orderCommandName;
-
-    /** @var  String */
-    private $orderRestaurantName;
-
-    /** @var  String */
-    private $orderRestaurantPhoneNumber;
-
-    /** @var  String */
-    private $orderRestaurantMenuUrl;
-
-    /** @var  String */
-    private $orderStartHour;
-
-    /** @var  String */
-    private $orderEndHour;
-
-    /** @var  String */
-    private $orderExample;
-
-    /** @var  String */
-    private $orderSenderEmail;
+    /** @var  Restaurant */
+    private $restaurant;
 
     public function __construct(
-        EntityManager $entityManager, \Swift_Mailer $mailer, \Twig_Environment $twig, Translator $translator, array $orderConfig)
+        EntityManager $entityManager, \Swift_Mailer $mailer, \Twig_Environment $twig, Translator $translator, Restaurant $restaurant)
     {
         $this->em = $entityManager;
         $this->mailer = $mailer;
         $this->twig = $twig;
         $this->translator = $translator;
-
-        $this->orderCommandName = $orderConfig['name'];
-        $this->orderRestaurantName = $orderConfig['restaurant']['name'];
-        $this->orderRestaurantPhoneNumber = $orderConfig['restaurant']['phone_number'];
-        $this->orderRestaurantEmail = $orderConfig['restaurant']['email'];
-        $this->orderRestaurantMenuUrl = $orderConfig['restaurant']['menu_url'];
-        $this->orderStartHour = $orderConfig['start_hour'];
-        $this->orderEndHour = $orderConfig['end_hour'];
-        $this->orderSendByMailActivated = $orderConfig['send_by_mail'];
-        $this->orderExample = $orderConfig['example'];
-        $this->orderSenderEmail = $orderConfig['sender_email'];
+        $this->restaurant = $restaurant;
     }
 
     /**
@@ -80,12 +50,12 @@ class OrderCommandService {
 
             return [
                 'text' => $this->translator->trans('order.sorry.notInTime',
-                    ['%orderStartHour%' => $this->orderStartHour,'%orderEndHour%' => $this->orderEndHour]),
+                    ['%orderStartHour%' => $this->restaurant->getStartHour(),'%orderEndHour%' => $this->restaurant->getEndHour()]),
                 'attachments' => [
                     [
                         'fallback' => 'Fail ?',
                         'text' => $this->translator->trans('order.sorry.notInTimePlanB',
-                            ['%restaurantName%' => $this->orderRestaurantName, '%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
+                            ['%restaurantName%' => $this->restaurant->getName(), '%restaurantPhoneNumber%' => $this->restaurant->getPhoneNumber()]),
                     ],
                 ],
             ];
@@ -93,14 +63,15 @@ class OrderCommandService {
 
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
-        $orderEntity = $orderRepository->findOneBy(['name' => $name, 'date' => $date]);
+        $orderEntity = $orderRepository->findOneBy(['name' => $name, 'date' => $date, 'restaurant' => $this->restaurant]);
 
         $orderEntity = $orderEntity ? $orderEntity : new Order();
 
         $orderEntity
             ->setName($name)
             ->setDate($date)
-            ->setOrder($order);
+            ->setOrder($order)
+            ->setRestaurant($this->restaurant);
 
         $this->em->persist($orderEntity);
         $this->em->flush();
@@ -108,7 +79,7 @@ class OrderCommandService {
         return [
             'response_type' => 'in_channel',
             'text' => $this->translator->trans('order.success',
-                ['%name%' => $name, '%commandName%' => $this->orderCommandName]),
+                ['%name%' => $name, '%commandName%' => $this->restaurant->getCommand()]),
             'mrkdwn' => true,
         ];
     }
@@ -129,7 +100,7 @@ class OrderCommandService {
                     [
                         'fallback' => 'Fail ?',
                         'text' => $this->translator->trans('order.cancel.tooLatePlanB',
-                            ['%restaurantName%' => $this->orderRestaurantName, '%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
+                            ['%restaurantName%' => $this->restaurant->getName(), '%restaurantPhoneNumber%' => $this->restaurant->getPhoneNumber()]),
                         'color' => 'danger',
                     ],
                 ],
@@ -138,7 +109,7 @@ class OrderCommandService {
 
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
-        $orderEntity = $orderRepository->findOneBy(['name' => $name, 'date' => $date]);
+        $orderEntity = $orderRepository->findOneBy(['name' => $name, 'date' => $date, 'restaurant' => $this->restaurant]);
         if (null === $orderEntity) {
             return [
                 'text' => $this->translator->trans('order.cancel.noOrder'),
@@ -164,7 +135,7 @@ class OrderCommandService {
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
         /** @var Order[] $orders */
-        $orders = $orderRepository->findBy(['date' => $date]);
+        $orders = $orderRepository->findBy(['date' => $date, 'restaurant' => $this->restaurant]);
 
         if (count($orders) === 0) {
             return [
@@ -196,7 +167,7 @@ class OrderCommandService {
      */
     public function menu()
     {
-        if (null === $this->orderRestaurantMenuUrl) {
+        if (null === $this->restaurant->getUrlMenu()) {
             return [
                 'text' => $this->translator->trans('order.menu.noMenu'),
             ];
@@ -208,9 +179,9 @@ class OrderCommandService {
             'attachments' => [
                 [
                     'fallback' => 'Fail ?',
-                    'title_link' => $this->orderRestaurantMenuUrl,
+                    'title_link' => $this->restaurant->getUrlMenu(),
                     'title' => $this->translator->trans('order.menu.urlTitle', [
-                        '%restaurantName%' => $this->orderRestaurantName
+                        '%restaurantName%' => $this->restaurant->getName()
                     ]),
                 ],
             ],
@@ -228,7 +199,7 @@ class OrderCommandService {
         $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
         try {
-            $orderEntity = $orderRepository->getFirstOrderNotSentToday();
+            $orderEntity = $orderRepository->getFirstOrderNotSentToday($this->restaurant);
         }catch (NoResultException $e) {
             return [
                 'text' => $this->translator->trans('order.send.noOrderPlacedToday'),
@@ -238,7 +209,7 @@ class OrderCommandService {
 
         if ($this->inTime()) {
             return [
-                'text' => $this->translator->trans('order.send.toEarly', ['%orderEndHour%' => $this->orderEndHour]),
+                'text' => $this->translator->trans('order.send.toEarly', ['%orderEndHour%' => $this->restaurant->getEndHour()]),
                 'mrkdwn' => true,
             ];
         }
@@ -273,14 +244,14 @@ class OrderCommandService {
 
         $date = new \DateTime();
         $date->setTime(0, 0, 0);
-        $orders = $orderRepository->findBy(['date' => $date, 'sent' => false]);
+        $orders = $orderRepository->findBy(['date' => $date, 'sent' => false, 'restaurant' => $this->restaurant]);
 
-        if ($this->orderSendByMailActivated == false) {
-            $orderRepository->setOrderAsSent();
+        if ($this->restaurant->sendOrderByEmail() === false) {
+            $orderRepository->setOrderAsSent($this->restaurant);
 
             return [
                 'text' => $this->translator->trans('order.send.orderByEmailNotActivated',
-                    ['%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
+                    ['%restaurantPhoneNumber%' => $this->restaurant->getPhoneNumber()]),
             ];
         }
 
@@ -288,11 +259,11 @@ class OrderCommandService {
 
             return [
                 'text' => $this->translator->trans('order.send.fail',
-                    ['%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
+                    ['%restaurantPhoneNumber%' => $this->restaurant->getPhoneNumber()]),
             ];
         }
 
-        $orderRepository->setOrderAsSent();
+        $orderRepository->setOrderAsSent($this->restaurant);
 
         return [
             'text' => $this->translator->trans('order.send.success'),
@@ -301,7 +272,7 @@ class OrderCommandService {
                 [
                     'fallback' => 'Fail ?',
                     'text' => $this->translator->trans('order.send.successConfirm',
-                        ['%name%' => ucfirst($orderEntity->getName()), '%restaurantPhoneNumber%' => $this->orderRestaurantPhoneNumber]),
+                        ['%name%' => ucfirst($orderEntity->getName()), '%restaurantPhoneNumber%' => $this->restaurant->getPhoneNumber()]),
                     'color' => 'danger',
                 ],
             ],
@@ -318,7 +289,7 @@ class OrderCommandService {
         $orderRepository = $this->em->getRepository('SlackOrder\Entity\Order');
 
         /** @var Order[] $orders */
-        $orders = $orderRepository->findBy(['name' => $name, 'sent' => true]);
+        $orders = $orderRepository->findBy(['name' => $name, 'sent' => true, 'restaurant' => $this->restaurant]);
 
         if (count($orders) === 0) {
             return [
@@ -354,9 +325,9 @@ class OrderCommandService {
     {
         $text = $this->translator->trans('order.help',
             [
-                '%commandName%' => $this->orderCommandName,
-                '%orderExample%' => $this->orderExample,
-                '%restaurantName%' => $this->orderRestaurantName,
+                '%commandName%' => $this->restaurant->getCommand(),
+                '%orderExample%' => $this->restaurant->getExample(),
+                '%restaurantName%' => $this->restaurant->getName(),
                 '%optionPlace%' => $this->translator->trans("command.options.place"),
                 '%optionCancel%' => $this->translator->trans("command.options.cancel"),
                 '%optionList%' => $this->translator->trans("command.options.list"),
@@ -372,7 +343,7 @@ class OrderCommandService {
             'attachments' => [
                 [
                     'fallback' => 'Fail ?',
-                    'text' => $this->translator->trans('order.helpDanger', ['%endHourOrderAllow%' => $this->orderEndHour]),
+                    'text' => $this->translator->trans('order.helpDanger', ['%endHourOrderAllow%' => $this->restaurant->getEndHour()]),
                     'color' => 'danger',
                 ],
             ],
@@ -384,18 +355,12 @@ class OrderCommandService {
      */
     private function inTime()
     {
-        if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $this->orderStartHour)) {
-            throw new \InvalidArgumentException('Invalid order start hour format in config.yml');
-        }
-        if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $this->orderEndHour)) {
-            throw new \InvalidArgumentException('Invalid order end hour format in config.yml');
-        }
         $currentDate = new \DateTime();
         $startDate = new \DateTime();
-        $orderStartHourExploded = explode(':', $this->orderStartHour);
+        $orderStartHourExploded = explode(':', $this->restaurant->getStartHour());
         $startDate->setTime(intval($orderStartHourExploded[0]), intval($orderStartHourExploded[1]), 0);
         $endDate = new \DateTime();
-        $orderEndHourExploded = explode(':', $this->orderEndHour);
+        $orderEndHourExploded = explode(':', $this->restaurant->getEndHour());
         $endDate->setTime(intval($orderEndHourExploded[0]), intval($orderEndHourExploded[1]), 0);
 
         return ($currentDate >= $startDate && $currentDate <= $endDate);
@@ -412,8 +377,8 @@ class OrderCommandService {
     {
         $message = \Swift_Message::newInstance()
             ->setSubject($this->translator->trans('email.subject'))
-            ->setFrom($this->orderSenderEmail)
-            ->setTo($this->orderRestaurantEmail)
+            ->setFrom($this->restaurant->getSenderEmail())
+            ->setTo($this->restaurant->getEmail())
             ->setBody(
                 $this->twig->render(
                     'Emails/order.html.twig',

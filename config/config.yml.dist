@@ -6,20 +6,5 @@ mailer:
    encryption: null
    auth_mode: null
 
-
-order:
-   token: slacktoken
-   name: /bagel
-   restaurant:
-      name: My Restaurant
-      phone_number: 0666444555
-      email: restaurant@restaurant.com
-      menu_url: http://www.restaurant.com/menu
-   start_hour: 10:00
-   end_hour: 10:30
-   send_by_mail: true
-   example: test
-   sender_email: sender@host.com
-
 translator:
     locale_fallbacks: [fr]

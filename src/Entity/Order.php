@@ -48,6 +48,12 @@ class Order
     private $sent = false;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Restaurant")
+     * @ORM\JoinColumn(name="restaurant_id", referencedColumnName="id")
+     */
+    private $restaurant;
+
+    /**
      * @return int
      */
     public function getId()
@@ -129,5 +135,26 @@ class Order
         $this->sent = $sent;
 
         return $this;
+    }
+
+    /**
+     * @var Restaurant
+     *
+     * @param Restaurant $restaurant
+     * @return $this
+     */
+    public function setRestaurant($restaurant)
+    {
+        $this->restaurant = $restaurant;
+
+        return $this;
+    }
+
+    /**
+     * @return Restaurant
+     */
+    public function getRestaurant()
+    {
+        return $this->restaurant;
     }
 }
