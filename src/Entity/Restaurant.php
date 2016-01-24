@@ -98,7 +98,7 @@ class Restaurant
     private $example;
 
     /**
-     * @OneToMany(targetEntity="Order", mappedBy="restaurant")
+     * @ORM\OneToMany(targetEntity="Order", mappedBy="restaurant")
      */
     private $orders;
 
