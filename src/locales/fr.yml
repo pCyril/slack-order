@@ -10,9 +10,9 @@ command:
 
 order:
   sorry:
-    notInTime: "Désolé les commandes ne sont accéptés que de %orderStartHour% à %orderEndHour%"
+    notInTime: "Désolé, les commandes ne sont acceptées que de %orderStartHour% à %orderEndHour%"
     notInTimePlanB: "Tu peux quand même appeler %restaurantName% au %restaurantPhoneNumber%"
-  success: "%name% a rejoint la commande groupé à midi si tu souhaites en faire de même utilise la commande `%commandName%`"
+  success: "%name% a rejoint la commande groupée à midi. Si tu souhaites faire de même, utilise la commande `%commandName%`"
   cancel:
     tooLate: "Il est trop tard pour annuler ta commande."
     tooLatePlanB: "Tu peux quand même essayer d'appeler %restaurantName% au %restaurantPhoneNumber%."
@@ -23,7 +23,7 @@ order:
     detail: "%name% a commandé : %orderDetail%."
     title: "*Voici les personnes avec qui tu vas manger :*"
   history:
-    never: "Tu n'as jamais passé de commande, ou elle n'a pas encore été envoyée."
+    never: "Tu n'as jamais passé de commande, ou celle-ci n'a pas encore été envoyée."
     detail: "Tu as commandé %orderDetail% le %orderDate%"
     dateFormat: "d/m/Y"
     title: "*Voici l'historique de tes commandes :*"
@@ -35,12 +35,12 @@ order:
     toEarly: "*Il est trop tôt pour envoyer la commande, tu dois attendre %orderEndHour% pour l'envoyer.*"
     noOrderPlacedToday: "*Il n'y a pas eu de commande aujourd'hui, ou elles sont déjà envoyées.*"
     notAuthorizedToSendOrders: "*Ce n'est pas toi qui a initié la commande, demande à %name% si il peut envoyer la commande.*"
-    orderByEmailNotActivated: "*L'envoie de la commande par email n'est pas activé merci de passer la commande par téléphone au %restaurantPhoneNumber%.*"
+    orderByEmailNotActivated: "*L'envoi de la commande par email n'est pas activé merci de passer la commande par téléphone au %restaurantPhoneNumber%.*"
     invalidHourFormat: "*Le format de l'heure n'est pas correct.*"
     invalidPhoneNumberFormat: "*Le format du numéro de téléphone n'est pas correct.*"
-    fail: "*L'email n'a pas été envoyé merci de passer la commande par téléphone au %restaurantPhoneNumber.*"
+    fail: "*L'email n'a pas été envoyé, merci de passer la commande par téléphone au %restaurantPhoneNumber.*"
     success: "*La commande a été envoyée*"
-    successConfirm: "%name%, tu peux quand même confirmer par téléphone au %restaurantPhoneNumber% ?"
+    successConfirm: "%name%, peux-tu, par sécurité, confirmer par téléphone au %restaurantPhoneNumber% ?"
   help: |
    *Tu as faim mais tu ne sais pas comment faire ?*
           - Si tu souhaites passer ou modifier une commande. `%commandName% %optionPlace% %orderExample%`
